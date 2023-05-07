@@ -65,7 +65,7 @@ We reserve 1 bit in the instruction marked as the **imload** bit. When this is a
 
 * reduce operation code size as we do not need so many instructions?
 * Remove Rd/Rs/Rt bits in instructions that only need 1 or 2 registers?
-* In both above cases give extra instruction space to the immediate value
+* In both cases above give extra instruction space to the immediate value
 
 ### Instruction Syntax
 
