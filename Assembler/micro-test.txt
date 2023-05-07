@@ -1,0 +1,12 @@
+#default means the code to be stored at address 0, the adress that is called when a condition is not met
+default: aluop=not dwrite=1
+swrite=1 sselin=2
+
+0: pcsel=immed  op2sel=treg aluop=add	twrite=1  dselin=7
+
+#some comment fhf
+
+addrsel2=aluout regsrc=sreg
+
+3: aluop=nand op2sel=const0  negOp2=1  rvrsOps=1 pcload=1 addrsel=sreg datasel=aluout datawrite=1
+swrite=1 dwrite=1 twrite=1 regsrc=immed sselin=6 tselin=1 dselin=4

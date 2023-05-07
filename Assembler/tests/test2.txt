@@ -1,0 +1,12 @@
+@testing setting flags and conditionals
+
+mov r1, #4	 @cycle 5
+mov r2, #4	 @cycle 6
+mov r3, #3	 @cycle 7
+mov r4, #5	 @cycle 8
+nop
+cmp r1, r2	 @cycle 10
+addeq r5, r1, r2 @cycle 11
+addcs r0, r1,r2  @cycle 12, does not execute because condition is not met but we only lose one cycle
+subs r6, r3, r4  @cycle 13
+remne r7, r3, r4 @cycle 14

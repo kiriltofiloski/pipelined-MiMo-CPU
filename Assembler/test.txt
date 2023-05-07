@@ -1,0 +1,14 @@
+/* Multiline comments
+Created by Kiril Tofiloski
+22/02/2023 */
+add r1, r4, r5
+subs r7, r6, #34
+lable1:
+nandeqs r1, r2, #45 /* checking for comment here too */
+cmp r3,r6
+lable2: movgt r6, #3
+j #23
+b lable1
+b lable2
+add r1,r2,r3
+orr r5,r7,r0
