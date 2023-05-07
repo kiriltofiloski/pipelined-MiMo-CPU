@@ -1,3 +1,4 @@
 # Table of contents
 
-* [Page 1](README.md)
+* [CPU Overview](README.md)
+* [Instructions](instructions.md)
