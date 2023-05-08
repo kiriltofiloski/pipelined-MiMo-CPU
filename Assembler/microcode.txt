@@ -82,7 +82,7 @@ default: pcsel=pc
 26: addrsel=immed regsrc=operand dwrite=1 pcsel=pc
 
 #27. str - Rd, immed  M[immed] <- Rd
-27: datasel=dreg datawrite=1 pcsel=pc
+27: addrsel=immed datasel=dreg datawrite=1 pcsel=pc
 
 #28. nop - Same as default i think
 28: pcsel=pc
