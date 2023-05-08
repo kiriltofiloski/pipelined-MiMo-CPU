@@ -27,7 +27,7 @@ The **pcsel** signal dictates whether the PC should increment, jump to immediate
 
 After processing the correct address, the Instruction RAM gives us the corresponding instruction.
 
-<figure><img src=".gitbook/assets/image (8).png" alt=""><figcaption><p>instrUnload MUX</p></figcaption></figure>
+<figure><img src=".gitbook/assets/image (8) (1).png" alt=""><figcaption><p>instrUnload MUX</p></figcaption></figure>
 
 The **instrUnload** signal decides whether the instruction passes through to the ID stage. It's purpose is to stop the instruction that is right after a jump/branch command from passing through.
 
@@ -122,4 +122,67 @@ The resulting ALU result is passed through to the next stage along with the regi
 
 ## Memory Access
 
+<figure><img src=".gitbook/assets/image (7) (1).png" alt=""><figcaption></figcaption></figure>
+
+#### Inputs:
+
+* aluout
+* Rd1
+* Rs1
+* Rt1
+* immed1
+* addrsel
+* datasel
+* datawrite
+
+#### Outputs:
+
+* aluout1
+* immed2
+* Rs2
+* addr&#x20;
+* datain
+
+The purpose of the Memory Access stage is to decide whether to read from or write to memory and select data to be written/ address to read from.
+
+<figure><img src=".gitbook/assets/image (14).png" alt=""><figcaption><p>Inside of MA_Stage</p></figcaption></figure>
+
+The **addrsel** signal decides which address in the Operand RAM to read from/write to. It's options are **immed1, aluout1** and **Rs1**.
+
+The **datasel** signal decides what data to write to the Operand RAM in the case of a write command. It's options are **Rd1, Rt1** and **aluot1**.
+
+The **datawrite** signal dictates wether data should be written to the RAM.
+
+The selected address (**addr**) and data (**datain**) are passed to the Operand RAM. The Operand RAM transfers the **operand** (that the address points to in the case of a read operation) to the next stage.
+
+## Write Back
+
 <figure><img src=".gitbook/assets/image (7).png" alt=""><figcaption></figcaption></figure>
+
+#### Inputs:
+
+* Rs2
+* aluout1
+* immed2
+* operand
+* regsrc
+* dwrite
+* swrite
+* twrite
+
+#### Outputs:
+
+* regwrite
+
+The purpose of the Write Back stage is to write back to the registers (if needed) any transformed or fetched data in the previous stages.
+
+<figure><img src=".gitbook/assets/image (8).png" alt=""><figcaption><p>Inside of WB_Stage</p></figcaption></figure>
+
+The **regsrc** signal dictates what data is to be written to the register. It's options are **Rs2, immed2,** **operand** (taken from Operand RAM) and **aluout1**.&#x20;
+
+<figure><img src=".gitbook/assets/image (13).png" alt=""><figcaption></figcaption></figure>
+
+The result is the **regwrite** output which enters the Register Bank along with the **dwrite, swrite** and **twrite** signals which indicate whether to write or not.
+
+The **dregs, sregs** and **tregs** signals from 3 cycles before now exit their shift registers and indicate which registers to write to.
+
