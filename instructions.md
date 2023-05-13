@@ -110,7 +110,7 @@ For the instruction set I implemented most of the standard ARM instructions alon
 | asr              | Rd, Rs, Rt/Immediate | <p>Rd &#x3C;- </p><p>Rs >> Rt/Immediate,<br>Filled bits are sign bit</p> |
 | ror              | Rd, Rs, Rt/Immediate | <p>Rd &#x3C;- </p><p>Rs ROLL RIGHT Rt/Immediate</p>                      |
 | rol              | Rd, Rs, Rt/Immediate | <p>Rd &#x3C;- </p><p>Rs ROLL LEFT Rt/Immediate</p>                       |
-| j                | Immediate/Label      | <p>PC &#x3C;-<br>Immediate/Label</p>                                     |
+| j                | Rs/Immediate/Label   | <p>PC &#x3C;-<br>Rs/Immediate/Label</p>                                  |
 | b                | Immediate/Label      | <p>PC &#x3C;- PC +<br>Immediate/Label</p>                                |
 | bl               | Label?               | Jump to subroutine                                                       |
 | ldr              | Rd, Immediate        | Rd <- M\[Immediate]                                                      |
