@@ -1,5 +1,12 @@
 @testing unconditionals with no set flags and no jumps
 
+.data
+
+.space 4
+.word 12
+
+.text
+
 mov r1, #5  @in register after cycle 5
 mov r2, #4  @cycle 6
 nop 		@there has to be 3 nop's if we want to use the same operands right away so there are no pipeline hazards

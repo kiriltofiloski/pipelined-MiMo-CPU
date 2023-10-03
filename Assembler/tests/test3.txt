@@ -1,5 +1,7 @@
 @testing jumps
 
+.text
+
 mov r1, #1		@cycle 5
 mov r2, #2		@cycle 6
 nop

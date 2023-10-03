@@ -1,5 +1,7 @@
 @testing jump to register
 
+.text
+
 mov r1, #5	@cycle 5
 mov r3, #10	@cycle 6
 nop		@cycle 7

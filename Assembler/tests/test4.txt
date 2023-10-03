@@ -1,5 +1,7 @@
 @testing jumps with instructions after jump command
 
+.text
+
 mov r1, #1	@cycle 5
 mov r2, #2	@cycle 6
 mov r3, #3	@cycle 7
