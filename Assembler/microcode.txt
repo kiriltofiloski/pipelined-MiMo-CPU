@@ -70,19 +70,29 @@ default: pcsel=pc
 # 22. rol - Rd, Rs, Rt   Rd <- Rs rolled left by Rt bits  
 22: op2sel=op2 aluop=rol regsrc=aluout dwrite=1 pcsel=pc
 
-# 23. j - immed PC <- immed
-23: pcsel=op2 instrUnload=1
+# 23. j - Rs/immed PC <- immed
+23: pcsel=immed instrUnload=1
 
 # 24. b - immed PC <- PC + immed
 24: pcsel=pcimmed instrUnload=1
 
-#25. bl - do this later
+#25. bl - immed Jump to subroutine
+25: pcsel=immed instrUnload=1 loadlink=1
 
-#26. ldr - Rd, immed  Rd <- M[immed]
-26: addrsel=immed regsrc=operand dwrite=1 pcsel=pc
+#26. rts - Return from subroutine
+26: pcsel=immed instrUnload=1 strlink=1
 
-#27. str - Rd, immed  M[immed] <- Rd
-27: addrsel=immed datasel=dreg datawrite=1 pcsel=pc
+#27. nop - Same as default i think
+27: pcsel=pc
 
-#28. nop - Same as default i think
-28: pcsel=pc
+#28. str - Rd, immed  M[immed] <- Rd
+28: addrsel=immed datasel=sreg datawrite=1 pcsel=pc
+
+#29. ldr - Rd, immed  Rd <- M[immed]
+29: addrsel=immed regsrc=operand dwrite=1 pcsel=pc
+
+#30. ldr - Rd, [Rs] Rd <- M[Rs]
+30: addrsel=sreg regsrc=operand dwrite=1 pcsel=pc
+
+#31. ldr - Rd, [Rs, immed/Rt] Rd <- M[Rs + immed/Rt]
+31: op2sel-op2 aluop=add addrsel=aluout regsrc=operand dwrite=1 pcsel=pc

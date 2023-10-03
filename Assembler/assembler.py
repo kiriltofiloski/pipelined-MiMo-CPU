@@ -1,5 +1,7 @@
+from msilib import datasizemask
 import sys
 import re
+from binascii import hexlify
 
 opcodeArr = {
     "mov" : 0,
@@ -28,9 +30,10 @@ opcodeArr = {
     "j" : 23,
     "b" : 24,
     "bl" : 25,
-    "ldr" : 26,
-    "str" : 27,
-    "nop" : 28,
+    "rts" : 26,
+    "nop" : 27,
+    "str" : 28,
+    "ldr" : 29,
 }
 
 opcodeArgList = {
@@ -60,9 +63,10 @@ opcodeArgList = {
     23 : ["^\s*#-?[0-9]+\s*$", "^\s*\w+\s*$", "^\s*r[0-7]\s*$"],
     24 : ["^\s*#-?[0-9]+\s*$", "^\s*\w+\s*$", "^\s*r[0-7]\s*$"],
     25 : ["^\s*#-?[0-9]+\s*$", "^\s*\w+\s*$", "^\s*r[0-7]\s*$"],
-    26 : ["^r[0-7],\s*r[0-7]\s*$", "^r[0-7],\s*#-?[0-9]+\s*$"], 
-    27 : ["^r[0-7],\s*r[0-7]\s*$", "^r[0-7],\s*#-?[0-9]+\s*$"],
-    28 : ["\s*"]
+    26 : ["\s*"],
+    27 : ["\s*"],
+    28 : ["^r[0-7],\s*r[0-7]\s*$", "^r[0-7],\s*#-?[0-9]+\s*$"],
+    29 : ["^r[0-7],\s*\[r[0-7]\]\s*$", "^r[0-7],\s*#-?[0-9]+\s*$", "^r[0-7],\s*\[r[0-7],\s*r[0-7]\]\s*$", "^r[0-7],\s*\[r[0-7],\s*#-?[0-9]+\]\s*$"],
 }
 
 # "^r[0-7],\s*r[0-7],\s*r[0-7]\s*$" this is r1,r2,r3
@@ -71,6 +75,9 @@ opcodeArgList = {
 # "^r[0-7],\s*r[0-7]\s*$", "^r[0-7],\s*#-?[0-9]+\s*$" These are r1,r2 and r1,#5
 # "^\s*#-?[0-9]+\s*$" just #5
 # "^\s*\w+\s*$" any label 
+# "^r[0-7],\s*\[r[0-7]\]\s*$" - match expresions like ldr r1 [r2] - for ldr only
+#"^r[0-7],\s*\[r[0-7],\s*r[0-7]\]\s*$" - match expressions like ldr r1, [r1, r3] - for ldr only
+#"^r[0-7],\s*\[r[0-7],\s*#-?[0-9]+\]\s*$" - match expressions like ldr r1, [r1, #5] - for ldr only
 
 
 condsArr = {
@@ -93,24 +100,101 @@ condsArr = {
     
 labelsArr = {}
 linesClean = []
+instrLines = []
+instrLinesClean = []
 addressCounter = 0
 markNextLine = False
 label = ""
 
 instructionsArr = []
+operandData = ""
 
 with open(sys.argv[1]) as f:
     #First we remove multiline comments
     fClean = re.sub(r'/\*[\s\S]*?\*/', '', f.read())
 
-    #First loop that looks for labels
+    #First loop that cleans comments
     for line in fClean.splitlines():
         line = line.strip()
         line = line.lower()
 
         if "@" in line:
             line = line.split("@", 1)[0]    #if line contains comment, delete everythig after the comment
+        if line != "":
+            linesClean.append(line) 
+    
+    #Second loop that checks for .data section and stores it to operand RAM
+    dataSection = False
+    instrSection = False
+    for lineNum, line in enumerate(linesClean):
+        if line == '.data':             #declares start of .data section
+            dataSection = True
+            instrSection = False
+        elif line == '.text':             #declares start of instruction section
+            dataSection = False
+            instrSection = True
+        elif instrSection:              #add the line to the instruction lines to be processed in the next loop
+            instrLines.append(line)
+        elif dataSection:
+            firstWord = re.split(r'\s+', line, 1)[0]
 
+            if firstWord == '.word':        #if it is a .word directive
+                words = re.split(r'\s+', line, 1)[1]
+                words = re.split(r'\s*,\s*', words)
+                for word in words:
+                    if word[:2] == '0x':        #if it's in hex, check if valid hex numebr than append to data
+                        try:
+                            int(word[2:], 16)
+                            operandData += word[2:].zfill(8)    #zfill is used to pad to word length, so it is aligned
+                        except ValueError:
+                            print("Error! Invalid number given at line: '" + line + "'")
+                            sys.exit()
+                    elif not word.isnumeric():     #if not hex check if numeric
+                        print("Error! Invalid number given at line: '" + line + "'")
+                        sys.exit()
+                    else:                           #if numeric and not in hex, convert to hex then append
+                        word = str(hex(int(word)))
+                        word = word[2:].zfill(8)
+                        operandData += str(word)
+            elif firstWord == '.ascii':             #if it is an ascii string directive
+                strngs = re.split(r'\s+', line, 1)[1]
+                strngs = re.split(r'\s*,\s*', strngs)
+                for strng in strngs:
+                    if strng[:1] != "\"" and strng[-1:] != "\"": #if it doesn't start and end with ""
+                        print("Error! Invalid string given at line: '" + line + "'")
+                        sys.exit()
+                    else:
+                        strng = strng.replace('"', '')          #remove unnecesary ""
+                        strng = hexlify(strng.encode("ascii"))  #convert to hex
+                        strng = str(strng)                  
+                        strng = strng[2:-1]                     #remove unnecesary b' and ' at start and end of bute stream
+                        operandData += strng
+            elif firstWord == '.asciiz':            #same as ascii but we add terminating null character to end of each string
+                strngs = re.split(r'\s+', line, 1)[1]
+                strngs = re.split(r'\s*,\s*', strngs)
+                for strng in strngs:
+                    if strng[:1] != "\"" and strng[-1:] != "\"": #if it doesn't start and end with ""
+                        print("Error! Invalid string given at line: '" + line + "'")
+                        sys.exit()
+                    else:
+                        strng = strng.replace('"', '')          #remove unnecesary ""
+                        strng += '\0'                           #add terminating null character
+                        strng = hexlify(strng.encode("ascii"))  #convert to hex
+                        strng = str(strng)
+                        strng = strng[2:-1]                     #remove unnecesary b' and ' at start and end of bute stream
+                        operandData += strng
+            elif firstWord == '.space':
+                space = re.split(r'\s+', line, 1)[1]
+                if not space.isnumeric():
+                    print("Error! Invalid number given at line: '" + line + "'")
+                    sys.exit()
+                else:
+                    spacesToAdd = int(space) * '00'   #add amount of empty butes specified by number after .space
+                    operandData += spacesToAdd
+
+
+    #Third loop that looks for labels
+    for lineNum, line in enumerate(instrLines):
         if ":" in line:
             label = line.split(":", 1)[0]
             afterLabel = line.split(":", 1)[1]
@@ -118,23 +202,23 @@ with open(sys.argv[1]) as f:
             if afterLabel == "" and not markNextLine:   #if line is a label line only like ' lableName:   ' 
                 markNextLine = True                     #mark the next line after to be marked
             elif afterLabel == "" and markNextLine:
-                print("Error! Can't have label that points to other label") #in our first implementation we will not make nested lables possible, maybe later
+                print("Error! Can't have label that points to other label at line: '" + line + "'") #in our first implementation we will not make nested lables possible, maybe later
                 sys.exit()
             else:
                 labelsArr[label] = addressCounter   #if label and instruction are on same line like ' lableName: add r1,r2,r3'
-                addressCounter += 1  
-                linesClean.append(afterLabel.strip())       #add the current address to the lablesArr and increase the counter
+                addressCounter += 1 
+                instrLinesClean.append(afterLabel.strip())  #add the current address to the lablesArr and increase the counter
         elif markNextLine:
             labelsArr[label] = addressCounter       #next line after lable that is to be marked
             addressCounter += 1
-            linesClean.append(line) 
+            instrLinesClean.append(line)  
             markNextLine = False
         elif line != "":                            #only increase addresscounter on non-blank lines
-            addressCounter += 1                     #since we removed comments, all lines should either be instructions or labels
-            linesClean.append(line) 
+            instrLinesClean.append(line)            #add the instruction to instrLinesClean
+            addressCounter += 1                     #since we removed comments and data, all lines should either be instructions or labels
     
-    #Second loop that decodes instructions
-    for lineNum, line in enumerate(linesClean):
+    #Fourth loop that decodes instructions
+    for lineNum, line in enumerate(instrLinesClean):
         firstWord = re.split(r'\s+', line, 1)[0]
         opcode = None
         condition = "al"
@@ -198,6 +282,13 @@ with open(sys.argv[1]) as f:
             print("Error! Incorrect argument syntax at line: '" + line + "'")
             sys.exit()
         
+        #for ldr decode into specific ldr instruction
+        if opcode == opcodeArr["ldr"]:                      #find better way to do this maybe?
+            if re.match("^r[0-7],\s*\[r[0-7]\]\s*$", args):
+                opcode = 30
+            elif re.match("^r[0-7],\s*\[r[0-7],\s*r[0-7]\]\s*$", args) or re.match("^r[0-7],\s*\[r[0-7],\s*#-?[0-9]+\]\s*$", args):
+                opcode = 31
+
         #find immediate
         immedRegex = re.findall(r'#-?[0-9]+', args)
         if len(immedRegex) > 0:
@@ -218,6 +309,11 @@ with open(sys.argv[1]) as f:
             Rs = Rs[1:]
             Rt = registers[2]
             Rt = Rt[1:]
+        elif len(registers) == 2 and opcode == 30: #make better
+            Rd = registers[0]
+            Rd = Rd[1:]
+            Rs = registers[1]
+            Rs = Rs[1:]
         elif len(registers) == 2 and imload == 0:
             Rs = registers[0]
             Rs = Rs[1:]
@@ -228,12 +324,12 @@ with open(sys.argv[1]) as f:
             Rd = Rd[1:]
             Rs = registers[1]
             Rs = Rs[1:]
-        elif len(registers) == 1 and opcode in [opcodeArr["j"], opcodeArr["b"], opcodeArr["bl"]]:
-            Rs = registers[0]
-            Rs = Rs[1:]
-        elif len(registers) == 1:
+        elif len(registers) == 1 and opcode in [opcodeArr["mov"], opcodeArr["mvn"]]:
             Rd = registers[0]
             Rd = Rd[1:]
+        elif len(registers) == 1:
+            Rs = registers[0]
+            Rs = Rs[1:]
        
         #find label
         if re.match(r'^\s*\w+\s*$', args) and not re.match(r'^\s*r[0-7]\s*$', args):
@@ -260,16 +356,14 @@ with open(sys.argv[1]) as f:
         RdBin = '{0:03b}'.format(int(Rd))
         if labelIsImmed:
             if label < 0:
-                label *= -1
-                immedBin = bin(label)[2:]
-                immedBin = immedBin.rjust(10,'1')
+                immedBin = bin(label % (1<<10))
+                immedBin = immedBin[2:]
             else:
                 immedBin = '{0:010b}'.format(label)
         else:
             if immed < 0:
-                immed *= -1
-                immedBin = bin(immed)[2:]
-                immedBin = immedBin.rjust(10,'1')
+                immedBin = bin(immed % (1<<10))
+                immedBin = immedBin[2:]
             else:
                 immedBin = '{0:010b}'.format(immed)
         
@@ -281,9 +375,9 @@ with open(sys.argv[1]) as f:
         instructionsArr.append(instrHex)
         print(instrHex)
 
-#write to output file
+#write to instruction output file
 outfile = sys.argv[1]
-outfile = re.sub(r'[.]{1}\w+$', ".ram", outfile)
+outfile = re.sub(r'[.]{1}\w+$', ".iram", outfile)
 with open(outfile, 'w') as f:
     f.write("v2.0 raw\n")
     for i in range(0, len(instructionsArr)):
@@ -292,4 +386,16 @@ with open(outfile, 'w') as f:
             f.write("\n")
     f.write("\n")
 f.close()
+
+if operandData:
+    #write to operand output file
+    outfile = sys.argv[1]
+    outfile = re.sub(r'[.]{1}\w+$', ".oram", outfile)
+    with open(outfile, 'w') as f:
+        f.write("v2.0 raw\n")
+        formatedOperandData = ""
+        for i in range(0, len(operandData), 8):
+            formatedOperandData += operandData[i:i+8] + " "
+        f.write(formatedOperandData.strip())
+    f.close()
 sys.exit(0)

@@ -5,6 +5,8 @@ import re
 ctrlSignals = {
     'instrUnload' : 0,      #IF
     'pcsel' : 0,
+    'loadlink' : 0,
+    'strlink' : 0,
 
     'op2sel' : 0,     #EX
     'aluop' : 0,
@@ -26,11 +28,15 @@ ctrlSigPairs = {
     'instrUnload=0' : ['instrUnload', 0],
     'instrUnload=1' : ['instrUnload', 1],
 
-    #'pcsel=sreg' : ['pcsel', 0],
-    #'pcsel=immed' : ['pcsel', 1],
-    'pcsel=op2' : ['pcsel', 0],
-    'pcsel=pc' : ['pcsel', 2],
-    'pcsel=pcimmed' : ['pcsel', 3],
+    'pcsel=pc' : ['pcsel', 0],
+    'pcsel=immed' : ['pcsel', 1],
+    'pcsel=pcimmed' : ['pcsel', 2],
+
+    'loadlink=0' : ['loadlink', 0],
+    'loadlink=1' : ['loadlink', 1],
+
+    'strlink=0' : ['strlink', 0],
+    'strlink=1' : ['strlink', 1],
 
     #'op2sel=treg' : ['op2sel', 0],
     #'op2sel=immed' : ['op2sel', 1],
@@ -61,7 +67,7 @@ ctrlSigPairs = {
     'aluop=rol' : ['aluop', 14],
     'aluop=ror' : ['aluop', 15],
 
-    'datasel=dreg' : ['datasel', 0],
+    'datasel=sreg' : ['datasel', 0],
     'datasel=treg' : ['datasel', 1],
     'datasel=aluout' : ['datasel', 2],
 
@@ -102,6 +108,8 @@ def generateInstr():
     #Convert to binary strings
     instrUnloadBin = '{0:01b}'.format(ctrlSignals['instrUnload'])
     pcselBin = '{0:02b}'.format(ctrlSignals['pcsel'])
+    loadlinkBin = '{0:01b}'.format(ctrlSignals['loadlink'])
+    strlinkBin = '{0:01b}'.format(ctrlSignals['strlink'])
     op2selBin = '{0:02b}'.format(ctrlSignals['op2sel'])
     aluopBin = '{0:04b}'.format(ctrlSignals['aluop'])
     negOp2Bin = '{0:01b}'.format(ctrlSignals['negOp2'])
@@ -113,10 +121,10 @@ def generateInstr():
     dwriteBin = '{0:01b}'.format(ctrlSignals['dwrite'])
     swriteBin = '{0:01b}'.format(ctrlSignals['swrite'])
     twriteBin = '{0:01b}'.format(ctrlSignals['twrite'])
-    filler = '{0:11b}'.format(0)
+    filler = '{0:09b}'.format(0)
 
     #Form binary instruction
-    instrBin = filler + twriteBin + swriteBin + dwriteBin + regsrcBin + addrselBin + datawritebin + dataselBin + rvrsOpsBin + negOp2Bin + aluopBin + op2selBin + pcselBin + instrUnloadBin
+    instrBin = filler + twriteBin + swriteBin + dwriteBin + regsrcBin + addrselBin + datawritebin + dataselBin + rvrsOpsBin + negOp2Bin + aluopBin + op2selBin + strlinkBin + loadlinkBin + pcselBin + instrUnloadBin
 
     #Convert to hex and add to array
     instrHex = hex(int(instrBin, 2))
@@ -132,6 +140,8 @@ def generateInstr():
     print("#################")
     print("instrUnload: " + str(ctrlSignals['instrUnload']))
     print("pcsel: " + str(ctrlSignals['pcsel']))
+    print("loadlink: " + str(ctrlSignals['loadlink']))
+    print("strlink: " + str(ctrlSignals['strlink']))
     print("op2sel: " + str(ctrlSignals['op2sel']))
     print("aluop: " + str(ctrlSignals['aluop']))
     print("negOp2: " + str(ctrlSignals['negOp2']))
@@ -185,7 +195,7 @@ with open(sys.argv[1]) as f:
             opcode = line.split(':', 1)[0]
             signals = line.split(':', 1)[1]
 
-            if int(opcode) > 28:
+            if int(opcode) > 31:
                 print("Error! Unknown opearation code at line: '" + line + "'")
                 sys.exit()
             
