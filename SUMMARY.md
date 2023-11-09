@@ -5,4 +5,4 @@
 * [Control Signals](control-signals.md)
 * [Overview of Stages](overview-of-stages.md)
 * [Assemblers](assemblers.md)
-* [New Changes](new-changes.md)
+* [Pipeline Hazard Optimizations](pipeline-hazard-optimizations.md)

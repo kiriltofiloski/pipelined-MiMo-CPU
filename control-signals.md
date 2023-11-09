@@ -8,15 +8,14 @@ Given that we changed it so every instruction can have an optional condition cod
 
 I found that a more elegant solution is to remove the decision ROM and have the conditional checking be done in hardware.
 
-I am not sure if this goes against the principles of MiMo too much, (as it is a **Micro-programmed CPU**), but this solution seemed overall easier to implement and more easily understandable for students in my opinion.
-
-<figure><img src=".gitbook/assets/image (2) (1) (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src=".gitbook/assets/image (41).png" alt=""><figcaption><p>The Control ROM</p></figcaption></figure>
 
 The new conditional execution is done in the following way:
 
 1. A **condition\_met** signal along with the **opcode** is received from the **ID** stage**.**
 2. The first address in our Control ROM is reserved for when a condition is not met. This throws the following **EX,MA,WB** and **IF** stages in their idle/default state as no instruction will be coming in.
 3. The **condition\_met** signal tells us when a condition has been met, so we may execute the instruction. When it is active, the Control ROM takes the **opcode** + 1 (+1 because of reserved first address) as it's address, when it is inactive it takes the first idle/default address as the condition has not been met.
+4. Each ROM address contains the values that each control signal should have for the current microinstruction.
 
 ### Control signal buffering
 
@@ -26,7 +25,7 @@ To accommodate for this, signals are buffered using different shift registers,
 
 &#x20;&#x20;
 
-<figure><img src=".gitbook/assets/image (3) (1) (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src=".gitbook/assets/image (50).png" alt=""><figcaption><p>Buffering of control signals</p></figcaption></figure>
 
 For example, signals needed for the **EX** stage will be needed right after the **ID**  stage, so they are entered in a 1 stage shift register. Signals needed for the **MA** stage require a 2 stage shift register and signals needed for the **WB** stage require a 3 stage shift register.
 
@@ -42,7 +41,7 @@ For example, take the **op2sel** signal. Previously the possible values were **t
 
 For an instruction like **add**, that can use a third register or an immediate value, we do not know which value for **op2sel** (**treg** or **immed)** to program into the micro-assembler.&#x20;
 
-<figure><img src=".gitbook/assets/image (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src=".gitbook/assets/image (38).png" alt=""><figcaption><p>Using the <strong>imload</strong> signal to determine the proper value of the control signal</p></figcaption></figure>
 
 Instead of having **treg** and **immed**, we replace them with **op2(0),** and use the MUX above to properly determine the signal. It works as follows:
 

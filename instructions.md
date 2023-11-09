@@ -1,6 +1,6 @@
 # Instructions
 
-I tried making the instruction set and CPU in general function much more like a classic ARM CPU, while also combining it with some of the features of the preivous MiMo model that made it simpler for learning purposes.
+I made the instruction set and CPU in general function much more like a classic ARM CPU, while also combining it with some of the features of the previous MiMo model that made it simpler for learning purposes.
 
 ### Added optional condition bits to every instruction
 
@@ -61,23 +61,31 @@ We reserve 1 bit in the instruction marked as the **imload** bit. When this is a
 * Rt - 3 bits
 * Immediate value - 10 bits
 
-#### Some possible changes:
-
-* reduce operation code size as we do not need so many instructions?
-* Remove Rd/Rs/Rt bits in instructions that only need 1 or 2 registers?
-* In both cases above give extra instruction space to the immediate value
-
 ### Instruction Syntax
 
 Changed instruction syntax to a simplified ARM Assembly syntax.
 
-| Symbol  | Function                  | Example                                 |
-| ------- | ------------------------- | --------------------------------------- |
-| /\* \*/ | Multiline comment         | <p>/*not read by</p><p> assembler*/</p> |
-| @       | Single-line comment       | @also not read                          |
-| #       | Indicates immediate value | mov r1, #1                              |
+| Symbol  | Function                               | Example                                                                                                                   |
+| ------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| /\* \*/ | Multiline comment                      | <p>/*not read by</p><p> assembler*/</p>                                                                                   |
+| @       | Single-line comment                    | @also not read                                                                                                            |
+| #       | Indicates immediate value              | mov r1, #1                                                                                                                |
+| .text   | Indicates start of instruction section | <p>add r1,r2,r3 </p><p>@this instruction @would not be read</p><p><br>.text</p><p><br>add r1,r2,r3<br>@this one would</p> |
+| .data   | Indicates start of data section        | <p>.word 0xff, 0x23<br>@this data would not @be read<br><br>.data<br><br>.asciiz "Hello World"<br>@this data would</p>    |
 
-Combinations in the form of **\[r1, r2]** have NOT been added.
+Combinations in the form of **\[r1, r2]** have NOT been added for any instructions except **ldr** (_More on this at the end of the next section_).
+
+The **.data** section outputs a second ram file for the operand RAM, when used.
+
+You first must declare **.data** then followed by the data you want to add. Afterwards, before declaring instructions, you must declare **.text** similar to standard ARM assembly.
+
+<figure><img src=".gitbook/assets/image (57).png" alt=""><figcaption><p>Example .data section of code</p></figcaption></figure>
+
+The **.word** directive declares words to be added to the operand RAM. They can be written as decimal or hexadecimal type.
+
+The **.space** directive declares an amount of space(bytes) to be left empty in operand RAM.
+
+The **.ascii** and **.asciiz** directives declare ascii strings to be added to the operand RAM. They are not aligned and take up as much space as needed. The only difference is **.asciiz** adds a terminating null character(empty byte) to each string.
 
 Examples of current proper syntax can be seen in the **Assembler/tests** folder.
 
@@ -110,14 +118,38 @@ For the instruction set I implemented most of the standard ARM instructions alon
 | asr              | Rd, Rs, Rt/Immediate | <p>Rd &#x3C;- </p><p>Rs >> Rt/Immediate,<br>Filled bits are sign bit</p> |
 | ror              | Rd, Rs, Rt/Immediate | <p>Rd &#x3C;- </p><p>Rs ROLL RIGHT Rt/Immediate</p>                      |
 | rol              | Rd, Rs, Rt/Immediate | <p>Rd &#x3C;- </p><p>Rs ROLL LEFT Rt/Immediate</p>                       |
-| j                | Rs/Immediate/Label   | <p>PC &#x3C;-<br>Rs/Immediate/Label</p>                                  |
+| j                | Immediate/Label      | <p>PC &#x3C;-<br>Immediate/Label</p>                                     |
 | b                | Immediate/Label      | <p>PC &#x3C;- PC +<br>Immediate/Label</p>                                |
-| bl               | Label?               | Jump to subroutine                                                       |
+| bl               | Label                | <p>Jump to subroutine<br>load Link Register with return address</p>      |
+| rts              | None                 | Return from subroutine                                                   |
 | ldr              | Rd, Immediate        | Rd <- M\[Immediate]                                                      |
 | str              | Rd, Immediate        | M\[Immediate] <- Rd                                                      |
 | nop              | None                 | <p>No operation<br>(Used to skip cycle and avoid pipeline hazards)</p>   |
 
-#### Some things I'm not sure about
+The **ldr** instructions supports 3 different notations that correspond to different addressing modes taht are supported in the CPU:
 
-* **bl** is the only instruction not implemented yet. I'm not sure how is best to do subroutines in this version, would like input on that.
-* Not sure if **ldr** and **str** commands should also accept register arguments? (e.g. _ldr r1, r2_ -> Rd <- M\[Value in r2])
+* **ldr Rd, \[Rs] -** Register indirect addressing
+* **ldr Rd, \[Rs, Rt/immed] -** Base plus offset/Base plus index addressing
+* **ldr Rd, immed -** Absolute addressing
+
+### Added Link Register and Subroutine Calls
+
+I added the Link register as a special register, outside of the Register Bank. This register is used to store the address for returning from subroutine calls with the **bl** (branch with link) instruction.&#x20;
+
+Sometimes a branch is executed to call a subprogram where the instruction sequence should return to the calling sequence when the subprogram terminates. These are called **subroutine calls** and are sufficiently common that most architectures include specific instructions to make them efficient.&#x20;
+
+In our case, we use the **bl** and **rts** instructions.
+
+It does not make sense to use one of the normal registers in our pipelined CPU because the Write Back stage for normal registers happens at the end, and since branch with link is a branch instruction, it needs to happen immediately after decoding like the other branch/jump instructions.
+
+<figure><img src=".gitbook/assets/image (58).png" alt=""><figcaption><p>Link register</p></figcaption></figure>
+
+I added 2 new microinstructions, **loadlink** and **strlink**.
+
+When the first signal is active it saves the current IF stage address in the link register, the second stores the current Link register value inside the **immed** port of the IF stage, as pictured below.
+
+<figure><img src=".gitbook/assets/image (59).png" alt=""><figcaption><p>Link register connected to IF stage</p></figcaption></figure>
+
+The **rts** instruction is used to return from a subroutine call, i.e. it stores the address that was saved in our link register back into the PC, so the CPU may continue fetching instructions from where it left off when the subroutine was entered.
+
+An example can be seen and tested in the **Assembler/tests/test7.txt** file.
