@@ -120,6 +120,7 @@ with open(sys.argv[1]) as f:
 
         if "@" in line:
             line = line.split("@", 1)[0]    #if line contains comment, delete everythig after the comment
+            line = line.strip()
         if line != "":
             linesClean.append(line) 
     
@@ -309,7 +310,7 @@ with open(sys.argv[1]) as f:
             Rs = Rs[1:]
             Rt = registers[2]
             Rt = Rt[1:]
-        elif len(registers) == 2 and opcode == 30: #make better
+        elif len(registers) == 2 and (opcode == 30 or opcode == 28):
             Rd = registers[0]
             Rd = Rd[1:]
             Rs = registers[1]
