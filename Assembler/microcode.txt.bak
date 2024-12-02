@@ -1,0 +1,98 @@
+# Default, for when condition is not met (here we only need to set the IF instruction to get next isntruction from memory
+default: pcsel=pc
+
+# 2. add - Rd, Rs, Rt   Rd <- Rs + Rt
+2: op2sel=op2 aluop=add regsrc=aluout dwrite=1 pcsel=pc
+
+# 0. mov - Rd, Rs   Rd <- Rs
+0: regsrc=op2 dwrite=1 pcsel=pc
+
+# 1. mvn - Rd, Rs   Rd <- !Rs
+1: op2sel=op2 rvrsOps=1 aluop=not regsrc=aluout dwrite=1 pcsel=pc
+
+# 3. sub - Rd, Rs, Rt   Rd <- Rs - Rt
+3: op2sel=op2 aluop=sub regsrc=aluout dwrite=1 pcload=1 pcsel=pc addrsel=pc
+
+# 4. rsb - Rd, Rs, Rt   Rd <- Rt - Rs
+4: op2sel=op2 aluop=sub rvrsOps=1 regsrc=aluout dwrite=1 pcsel=pc
+
+# 5. mul - Rd, Rs, Rt   Rd <- Rs * Rt
+5: op2sel=op2 aluop=mul regsrc=aluout dwrite=1 pcsel=pc
+
+# 6. div - Rd, Rs, Rt   Rd <- Rs / Rt
+6: op2sel=op2 aluop=div regsrc=aluout dwrite=1 pcsel=pc
+
+# 7. rem - Rd, Rs, Rt   Rd <- Rs % Rt
+7: op2sel=op2 aluop=rem regsrc=aluout dwrite=1 pcsel=pc
+
+# 8. and - Rd, Rs, Rt   Rd <- Rs AND Rt
+8: op2sel=op2 aluop=and regsrc=aluout dwrite=1 pcsel=pc
+
+# 9. orr - Rd, Rs, Rt   Rd <- Rs OR Rt
+9: op2sel=op2 aluop=or regsrc=aluout dwrite=1 pcsel=pc
+
+# 10. eor - Rd, Rs, Rt   Rd <- Rs XOR Rt
+10: op2sel=op2 aluop=xor regsrc=aluout dwrite=1 pcsel=pc
+
+# 11. nand - Rd, Rs, Rt   Rd <- Rs NAND Rt
+11: op2sel=op2 aluop=nand regsrc=aluout dwrite=1 pcsel=pc
+
+# 12. nor - Rd, Rs, Rt   Rd <- Rs NOR Rt
+12: op2sel=op2 aluop=nor regsrc=aluout dwrite=1 pcsel=pc
+
+# 13. bic - Rd, Rs, Rt   Rd <- Rs AND !Rt
+13: op2sel=op2 aluop=and regsrc=aluout negOp2=1 dwrite=1 pcsel=pc 
+
+# 14. cmp - Rs, Rt   Rs - Rt, then set flags, result isn't saved
+14: op2sel=op2 aluop=sub pcsel=pc 
+
+# 15. cmn - Rs, Rt   Rs + Rt, then set flags, result isn't saved
+15: op2sel=op2 aluop=add pcsel=pc
+
+# 16. tst - Rs, Rt   Rs XOR Rt, then set flags, result isn't saved
+16: op2sel=op2 aluop=xor pcsel=pc
+
+# 17. teq - Rs, Rt   Rs AND Rt, then set flags, result isn't saved
+17: op2sel=op2 aluop=and pcsel=pc
+
+# 18. lsl - Rd, Rs, Rt   Rd <- Rs << Rt
+18: op2sel=op2 aluop=lsl regsrc=aluout dwrite=1 pcsel=pc
+
+# 19. lsr - Rd, Rs, Rt   Rd <- Rs >> Rt
+19: op2sel=op2 aluop=lsr regsrc=aluout dwrite=1 pcsel=pc
+
+# 20. asr - Rd, Rs, Rt   Rd <- Rs >> Rt (filled bits are the sign bit)  
+20: op2sel=op2 aluop=asr regsrc=aluout dwrite=1 pcsel=pc
+
+# 21. ror - Rd, Rs, Rt   Rd <- Rs rolled right by Rt bits  
+21: op2sel=op2 aluop=ror regsrc=aluout dwrite=1 pcsel=pc
+
+# 22. rol - Rd, Rs, Rt   Rd <- Rs rolled left by Rt bits  
+22: op2sel=op2 aluop=rol regsrc=aluout dwrite=1 pcsel=pc
+
+# 23. j - Rs/immed PC <- immed
+23: pcsel=immed instrUnload=1
+
+# 24. b - immed PC <- PC + immed
+24: pcsel=pcimmed instrUnload=1
+
+#25. bl - immed Jump to subroutine
+25: pcsel=immed instrUnload=1 loadlink=1
+
+#26. rts - Return from subroutine
+26: pcsel=immed instrUnload=1 strlink=1
+
+#27. nop - Same as default i think
+27: pcsel=pc
+
+#28. str - Rd, immed  M[immed] <- Rd
+28: addrsel=immed datasel=sreg datawrite=1 pcsel=pc
+
+#29. ldr - Rd, immed  Rd <- M[immed]
+29: addrsel=immed regsrc=operand dwrite=1 pcsel=pc
+
+#30. ldr - Rd, [Rs] Rd <- M[Rs]
+30: addrsel=sreg regsrc=operand dwrite=1 pcsel=pc
+
+#31. ldr - Rd, [Rs, immed/Rt] Rd <- M[Rs + immed/Rt]
+31: op2sel-op2 aluop=add addrsel=aluout regsrc=operand dwrite=1 pcsel=pc

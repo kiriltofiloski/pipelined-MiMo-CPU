@@ -1,0 +1,92 @@
+add, r1, r1, #1
+
+ARMv7 via CPUlator:
+
+1110	`	00				1		0100		0		0001	0001	0000				00000001
+cond(AL)	type(data processing)		imload		opcode(ADD)	set flags	Rn	Rd	shift applied to immed		8-bit immed
+
+
+MiMo v2:
+
+0000010		1		0		0001		000		001		001		0000000001	
+opcode		imload		set flags	cond(AL)	Rt		Rs(Rn)		Rd		10-bit immed
+
+
+#############################################################################################################################################################
+
+
+add, r1, r1, r3
+
+ARMv7 via CPUlator:
+
+1110	`	00				0		0100		0		0001	0001	00000000			0011
+cond(AL)	type(data processing)		imload		opcode(ADD)	set flags	Rn	Rd	shift applied to Rm		Rm
+
+
+MiMo v2:
+
+0000010		0		0		0001		011		001		001		0000000000	
+opcode		imload		set flags	cond(AL)	Rt(Rm)		Rs(Rn)		Rd		10-bit immed
+
+
+#############################################################################################################################################################
+
+moveq r1, #3
+
+ARMv7 via CPUlator:
+
+0000	`	00				1		1101		0		0000	0001	0000				00000011
+cond(EQ)	type(data processing)		imload		opcode(MOV)	set flags	Rn	Rd	shift applied to immed		8-bit immed
+
+
+MiMo v2:
+
+0000000		1		0		0010		000		000		001		0000000011	
+opcode		imload		set flags	cond(EQ)	Rt(Rm)		Rs(Rn)		Rd		10-bit immed
+
+#############################################################################################################################################################
+
+ldr r1, [r3]
+
+ARMv7 via CPUlator:
+
+1110		01				0		1				1			0			0				1			0011	0001	000000000000
+cond(AL)	type(single data transfer)	imm offset	pre/post indexing bit(pre)	up/down bit(up)		byte/word bit(word)	writeback bit(no write back)	load/store bit(load)	Rn	Rd	12-bit immed offset
+
+
+MiMo v2:
+
+0011110		0		0		0001		000		011		001	0000000000
+opcode		imload		set flags	cond(AL)	Rt(Rm)		Rs(Rn)		Rd	10-bit immed
+
+#############################################################################################################################################################
+
+ldr r1, [r3, r4]
+
+ARMv7 via CPUlator:
+
+1110		01				1		1				1			0			0				1			0011	0001	00000000	0100
+cond(AL)	type(single data transfer)	imm offset	pre/post indexing bit(pre)	up/down bit(up)		byte/word bit(word)	writeback bit(no write back)	load/store bit(load)	Rn	Rd	shift to Rm	Rm
+
+
+MiMo v2:
+
+0011111		0		0		0001		100		011		001	0000000000
+opcode		imload		set flags	cond(AL)	Rt(Rm)		Rs(Rn)		Rd	10-bit immed
+
+##############################################################################################################################################################
+
+ldr r1, [r3, #5]
+
+ARMv7 via CPUlator:
+
+1110		01				0		1				1			0			0				1			0011	0001	000000000101
+cond(AL)	type(single data transfer)	imm offset	pre/post indexing bit(pre)	up/down bit(up)		byte/word bit(word)	writeback bit(no write back)	load/store bit(load)	Rn	Rd	12-bit immed offset
+
+
+MiMo v2:
+
+0011111		1		0		0001		000		011		001	0000000101
+opcode		imload		set flags	cond(AL)	Rt(Rm)		Rs(Rn)		Rd	10-bit immed
+
+##############################################################################################################################################################
