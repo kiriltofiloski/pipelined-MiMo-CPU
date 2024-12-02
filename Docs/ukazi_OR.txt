@@ -1,0 +1,47 @@
+
+Logični ukazi (delo z biti):
+	
+	1.	AND,BIC (brisanje določenih bitov)
+	and r1, r2, r3 @brisanje z ničlami v maski r3 
+	bic r1, r2, r3 @brisanje z enicami v maski r3
+
+	2.	ORR (postavljanje določenih bitov)
+	orr r1, r2, r3 @postavljanje z enicami v maski r3
+
+	3.	EOR (invertiranje določenih bitov)
+	eor r1, r2, r3 @invertiranje z enicami v maski r3
+
+Logični ukazi (preverjanje stanja bitov):
+	
+	1.	TST (preverjanje stanja enega bita, ali več ničelnih bitov) – v bistvu AND s vplivom na zastavice
+	tst r1, r2 @zastavice postavi glede na r1 AND r2
+
+	2.	Maskiranje AND in CMP – preverjanje stanja večih bitov:
+	-	nezanimive bite damo na 0 (operacija AND z masko)
+	-	zanimive bite primerjamo z ustreznimi vrednostmi
+	@preveri, da je bit7 v r1 enak 0 in bit 2 v r1 enak 1
+	and r2, r1, #0x84 @0x84 = ..010000100 => r2=..0?0000?00 
+	cmp r2, #0x04	   @0x04 = ..000000100; ustreza, če Z=1
+
+Pomiki:
+	ARM ima v podatkovni poti hitri pomikalnik za pomikanje vsebine drugega operanda. S tem dobimo vrsto uporabnih operacij.
+	Možni pomiki drugega operanda:
+	•	LSL: logični pomik v levo za 0-31 mest
+	•	LSR: log. pomik v desno za 0-31 mest
+	•	ASL: enako kot LSL 
+	•	ASR: aritmetični pomik v desno (širi se predznak!)
+	•	ROR: rotacija v desno za 0-31 mest
+	•	RRX: rotate right extended
+	o	Pri rotaciji se na najvišje mesto vpiše C bit, v C gre bit 0, ostali biti se pomaknejo v desno za eno mesto.
+
+Podprogrami:
+
+	• BL : Branch with Link (L = 1) - shrani povratni naslov v r14.
+
+	•	brez sklada: 
+		bl PODPROG
+		..
+		PODPROG: 	..
+		..
+		mov pc, lr @vračanje iz podprograma
+
