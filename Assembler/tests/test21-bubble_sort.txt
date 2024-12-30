@@ -1,0 +1,71 @@
+/*
+void bubbleSort(vector<int>& arr) {
+    int n = arr.size();
+  
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                swap(arr[j], arr[j + 1]);
+            }
+        }
+    }
+*/
+
+
+@ Bubble sort algorithm
+
+
+.data
+.word 10 @array size
+.word 42, 17, 88, 23, 54, 75, 12, 67, 31, 99 @array elements
+
+.text
+
+ldr r0, #0		@ r0 -> size and outer loop counter
+sub r0, r0, #1 		@ size = size - 1
+
+sort_outer:
+cmp r0, #0		@ Check if outer loop is done
+beq sort_done		@ Exit if size == 0			
+mov r1, r0		@ r1 is inner loop counter
+mov r2, #1		@ r2 points to array
+
+sort_inner:
+cmp r1, #0		@ Check if inner loop is done
+beq sort_outer_dec	@ Exit inner loop if r1 == 0
+ldr r3, [r2]		@ Load array[j]
+ldr r4, [r2, #1]	@ Load array[j+1]
+cmp r3, r4		@ Compare array[j] and array[j+1]
+ble sort_inner_next	@ Skip swap if array[j] <= array[j+1]
+str r4, [r2]		@ Swap array[j] and array[j+1]
+str r3, [r2, #1]
+
+sort_inner_next:
+add r2, r2, #1		@ Move on to next pair in array
+sub r1, r1, #1		@ Decrement inner loop counter
+b sort_inner
+
+
+sort_outer_dec:
+sub r0, r0, #1		@ Decrement outer loop counter
+b sort_outer
+
+sort_done:
+mov r7, #1
+
+
+    
+
+/*
+Number of incorrect prediction to complete whole sort
+
+no prediction: 37
+1-bit: 52
+2-bit: 32
+correlating LHT: 37
+correlating 2 by 2: 24
+tournament: 35
+
+for some reason tournament is worse here than correlating, not sure exactly why, but it's interesting
+*/
+
