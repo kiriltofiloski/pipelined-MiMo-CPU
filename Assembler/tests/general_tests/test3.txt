@@ -1,0 +1,11 @@
+@testing jumps
+
+.text
+
+mov r1, #1		@cycle 5
+mov r2, #2		@cycle 6
+nop
+nop
+nop
+loop: mul r1, r1, r2	@cycle 10,16,22,28 - we lose 6 cycles for every jump
+j loop			@cycle 11

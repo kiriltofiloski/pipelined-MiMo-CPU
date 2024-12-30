@@ -1,0 +1,29 @@
+@this is a revised example showing the efficiency of a 2-bit predictor over a 1-bit predictor
+@ on nested loop
+
+.text
+
+mov r0, #8
+
+loop: 
+mov r1, #8
+nop
+nop
+nop
+
+repeat:
+subs r1, r1, #1
+nop
+nop
+nop
+bne repeat
+nop
+nop
+nop
+subs r0, r0, #1
+b  loop
+
+/*
+using 1-bit predictor: 23/100 predictions are incorrect 
+using 2-bit predictor: 13/100 predictions are incorrect
+*/
