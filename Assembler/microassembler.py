@@ -70,6 +70,7 @@ ctrlSigPairs = {
     'datasel=sreg' : ['datasel', 0],
     'datasel=treg' : ['datasel', 1],
     'datasel=aluout' : ['datasel', 2],
+    'datasel=dreg' : ['datasel', 3],
 
     'datawrite=0' : ['datawrite', 0],
     'datawrite=1' : ['datawrite', 1],
@@ -129,10 +130,7 @@ def generateInstr():
     #Convert to hex and add to array
     instrHex = hex(int(instrBin, 2))
     instrHex = instrHex[2:]
-    if currentOpcode == 'default':
-        instructionsArr[0] = instrHex
-    else:
-        instructionsArr[int(currentOpcode) + 1] = instrHex
+    instructionsArr[int(currentOpcode)] = instrHex
 
     #Print for testing
     print("instruction: " + instrHex)
@@ -169,8 +167,8 @@ with open(sys.argv[1]) as f:
         if "@" in line:
             line = line.split("@", 1)[0]    #if line contains comment, delete everythig after the comment
         
-        #if default address, for when conditions aren't met
-        if re.match(r'^\s*default:', line):
+        #if default address, for when conditions aren't met - NOT USED ANYMORE
+        """if re.match(r'^\s*default:', line):
             #Save current control signals to new instruction if not first instruction(if currentOpcode!=None)
             if currentOpcode is not None:
                 generateInstr() 
@@ -185,9 +183,9 @@ with open(sys.argv[1]) as f:
 
             for signal in signalsArr:
                 if signal in ctrlSigPairs:
-                    ctrlSignals[ctrlSigPairs[signal][0]] = ctrlSigPairs[signal][1]
+                    ctrlSignals[ctrlSigPairs[signal][0]] = ctrlSigPairs[signal][1]"""
         #if new opcode in line
-        elif re.match(r'^\s*\d+:', line):
+        if re.match(r'^\s*\d+:', line):
             #Save current control signals to new instruction if not first instruction(if currentOpcode!=None)
             if currentOpcode is not None:
                 generateInstr() 
@@ -195,7 +193,7 @@ with open(sys.argv[1]) as f:
             opcode = line.split(':', 1)[0]
             signals = line.split(':', 1)[1]
 
-            if int(opcode) > 31:
+            if int(opcode) > 33:
                 print("Error! Unknown opearation code at line: '" + line + "'")
                 sys.exit()
             

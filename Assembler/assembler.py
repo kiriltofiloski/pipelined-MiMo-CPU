@@ -65,7 +65,7 @@ opcodeArgList = {
     25 : ["^\s*#-?[0-9]+\s*$", "^\s*\w+\s*$", "^\s*r[0-7]\s*$"],
     26 : ["^\s*#-?[0-9]+\s*$", "^\s*\w+\s*$", "^\s*r[0-7]\s*$"],
     27 : ["\s*"],
-    28 : ["^r[0-7],\s*r[0-7]\s*$", "^r[0-7],\s*#-?[0-9]+\s*$"],
+    28 : ["^r[0-7],\s*\[r[0-7]\]\s*$", "^r[0-7],\s*#-?[0-9]+\s*$", "^r[0-7],\s*\[r[0-7],\s*r[0-7]\]\s*$", "^r[0-7],\s*\[r[0-7],\s*#-?[0-9]+\]\s*$"],
     29 : ["^r[0-7],\s*\[r[0-7]\]\s*$", "^r[0-7],\s*#-?[0-9]+\s*$", "^r[0-7],\s*\[r[0-7],\s*r[0-7]\]\s*$", "^r[0-7],\s*\[r[0-7],\s*#-?[0-9]+\]\s*$"],
 }
 
@@ -258,6 +258,7 @@ with open(sys.argv[1]) as f:
             setFlags = 1
         
         #Now we decode the arguments
+        opcodeName = opcode
         opcode = opcodeArr[opcode]
         if len(re.split(r'\s+', line, 1)) > 1:
             args = re.split(r'\s+', line, 1)[1]
@@ -290,6 +291,13 @@ with open(sys.argv[1]) as f:
             elif re.match("^r[0-7],\s*\[r[0-7],\s*r[0-7]\]\s*$", args) or re.match("^r[0-7],\s*\[r[0-7],\s*#-?[0-9]+\]\s*$", args):
                 opcode = 31
 
+        #for str decode into specific str instruction
+        if opcode == opcodeArr["str"]:                      #find better way to do this maybe?
+            if re.match("^r[0-7],\s*\[r[0-7]\]\s*$", args):
+                opcode = 32
+            elif re.match("^r[0-7],\s*\[r[0-7],\s*r[0-7]\]\s*$", args) or re.match("^r[0-7],\s*\[r[0-7],\s*#-?[0-9]+\]\s*$", args):
+                opcode = 33
+
         #find immediate
         immedRegex = re.findall(r'#-?[0-9]+', args)
         if len(immedRegex) > 0:
@@ -310,7 +318,7 @@ with open(sys.argv[1]) as f:
             Rs = Rs[1:]
             Rt = registers[2]
             Rt = Rt[1:]
-        elif len(registers) == 2 and (opcode == 30 or opcode == 28):
+        elif len(registers) == 2 and opcode in [30, 32, opcodeArr["str"], opcodeArr["mov"], opcodeArr["mvn"]]:
             Rd = registers[0]
             Rd = Rd[1:]
             Rs = registers[1]
@@ -333,6 +341,7 @@ with open(sys.argv[1]) as f:
             Rs = Rs[1:]
        
         #find label
+        labelName = ''
         if re.match(r'^\s*\w+\s*$', args) and not re.match(r'^\s*r[0-7]\s*$', args):
             labelName = args.strip()
             if labelName not in labelsArr:
@@ -344,8 +353,12 @@ with open(sys.argv[1]) as f:
                 labelIsImmed = True
         
         #Print out everything for testing
-        print(str(lineNum) + ': ' + 'opcode: ' + str(opcode) + ', cond: ' + str(condition) + ', setFlags: ' + str(setFlags))
-        print('Rd: ' + str(Rd) + ', Rs: ' + str(Rs) + ', Rt: ' + str(Rt) + ', immed: ' + str(immed) + ', label: ' + str(label))
+        print(str(lineNum) + ': ' + str(line))
+        print('op: ' + str(opcodeName) + ', cond: ' + str(condition) + ', S: ' + str(setFlags) + ', imload: ' + str(imload))
+        if labelIsImmed:
+            print('Rd: ' + str(Rd) + ', Rs: ' + str(Rs) + ', Rt: ' + str(Rt) + ', imm: ' + str(label))
+        else:
+            print('Rd: ' + str(Rd) + ', Rs: ' + str(Rs) + ', Rt: ' + str(Rt) + ', imm: ' + str(immed))
 
         #Convert everything to binary strings and combine to form 32 bit instruction
         opcodeBin = '{0:07b}'.format(opcode)
@@ -374,7 +387,7 @@ with open(sys.argv[1]) as f:
         instrHex = hex(int(instrBin, 2))
         instrHex = instrHex[2:]
         instructionsArr.append(instrHex)
-        print(instrHex)
+        print("hex instruction: " + instrHex + "\n")
 
 #write to instruction output file
 outfile = sys.argv[1]

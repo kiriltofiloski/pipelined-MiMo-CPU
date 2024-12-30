@@ -1,7 +1,4 @@
-# Default, for when condition is not met (here we only need to set the IF instruction to get next isntruction from memory
-default: pcsel=pc
-
-#0. nop - Same as default i think
+#0. nop - Default, for when condition is not met SHOUDL ALWAYS BE SET TO 0TH INSTRUCTION
 0: pcsel=pc
 
 # 1. mov - Rd, Rs   Rd <- Rs
@@ -85,14 +82,22 @@ default: pcsel=pc
 #27. rts - Return from subroutine
 27: pcsel=immed instrUnload=1 strlink=1
 
-#28. str - Rd, immed  M[immed] <- Rd
+# For v2.2 the ldr and str isntructions below MUST ALWAYS HAVE THESE EXACT CODES
+
+#28. str - Rs, immed  	M[immed] <- Rs
 28: addrsel=immed datasel=sreg datawrite=1 pcsel=pc
 
-#29. ldr - Rd, immed  Rd <- M[immed]
+#29. ldr - Rd, immed  	Rd <- M[immed]
 29: addrsel=immed regsrc=operand dwrite=1 pcsel=pc
 
-#30. ldr - Rd, [Rs] Rd <- M[Rs]
+#30. ldr - Rd, [Rs] 	Rd <- M[Rs]
 30: addrsel=sreg regsrc=operand dwrite=1 pcsel=pc
 
 #31. ldr - Rd, [Rs, immed/Rt] Rd <- M[Rs + immed/Rt]
 31: op2sel-op2 aluop=add addrsel=aluout regsrc=operand dwrite=1 pcsel=pc
+
+#32. str - Rs, [Rd] 	M[Rd] <- Rs
+32: addrsel=sreg datasel=dreg datawrite=1 pcsel=pc
+
+#33. str - Rd, [Rs, immed/Rt] 	M[Rs + immed/Rt] <- Rd
+33: op2sel=op2 aluop=add addrsel=aluout datasel=dreg datawrite=1 pcsel=pc
