@@ -14,8 +14,7 @@
       <a name="facing" val="north"/>
     </tool>
     <tool name="Tunnel">
-      <a name="facing" val="east"/>
-      <a name="width" val="32"/>
+      <a name="width" val="4"/>
     </tool>
     <tool name="Pull Resistor">
       <a name="facing" val="north"/>
@@ -849,10 +848,10 @@
       <a name="label" val="Z"/>
     </comp>
     <comp lib="0" loc="(3830,930)" name="Tunnel">
-      <a name="label" val="V"/>
+      <a name="label" val="N"/>
     </comp>
     <comp lib="0" loc="(3830,970)" name="Tunnel">
-      <a name="label" val="N"/>
+      <a name="label" val="V"/>
     </comp>
     <comp lib="0" loc="(4070,660)" name="Tunnel">
       <a name="facing" val="east"/>
@@ -1599,9 +1598,6 @@
       <a name="label" val="LR"/>
       <a name="width" val="32"/>
     </comp>
-    <comp lib="0" loc="(880,2380)" name="Constant">
-      <a name="width" val="8"/>
-    </comp>
     <comp lib="0" loc="(990,2340)" name="Constant">
       <a name="value" val="0x0"/>
       <a name="width" val="8"/>
@@ -1652,15 +1648,14 @@
       <a name="select" val="2"/>
       <a name="width" val="32"/>
     </comp>
-    <comp lib="3" loc="(930,2370)" name="Adder"/>
     <comp lib="4" loc="(1060,2340)" name="ROM">
       <a name="appearance" val="classic"/>
       <a name="contents">addr/data: 8 32
-0 0 100000 1c1500 1c0000 1c0080 1c1080 1c0100
-1c0180 1c0200 1c0280 1c0300 1c0380 1c0400 1c0480 1c0a80
-80 0 380 280 1c0580 1c0600 1c0680 1c0780
-1c0700 3 5 b 13 8000 180000 1a0000
-190000
+0 100000 1c1500 1c0000 1c0080 1c1080 1c0100 1c0180
+1c0200 1c0280 1c0300 1c0380 1c0400 1c0480 1c0a80 80
+0 380 280 1c0580 1c0600 1c0680 1c0780 1c0700
+3 5 b 13 8000 180000 1a0000 190000
+2e000 1e000
 </a>
       <a name="dataWidth" val="32"/>
     </comp>
@@ -2134,10 +2129,6 @@
     <comp lib="6" loc="(850,1380)" name="Text">
       <a name="font" val="SansSerif bold 64"/>
       <a name="text" val="IF"/>
-    </comp>
-    <comp lib="6" loc="(910,2410)" name="Text">
-      <a name="font" val="SansSerif bold 13"/>
-      <a name="text" val="1st address is reserved"/>
     </comp>
     <comp lib="6" loc="(935,325)" name="Text">
       <a name="text" val="Rd_EX"/>
@@ -3188,13 +3179,11 @@
     <wire from="(810,1510)" to="(820,1510)"/>
     <wire from="(810,1550)" to="(810,1560)"/>
     <wire from="(810,1560)" to="(1150,1560)"/>
-    <wire from="(810,2360)" to="(840,2360)"/>
+    <wire from="(810,2360)" to="(1010,2360)"/>
     <wire from="(820,1210)" to="(830,1210)"/>
     <wire from="(820,1510)" to="(820,1540)"/>
     <wire from="(830,1180)" to="(830,1210)"/>
     <wire from="(840,1180)" to="(840,1230)"/>
-    <wire from="(840,2330)" to="(840,2360)"/>
-    <wire from="(840,2330)" to="(950,2330)"/>
     <wire from="(850,1160)" to="(860,1160)"/>
     <wire from="(850,1490)" to="(850,1540)"/>
     <wire from="(860,1160)" to="(860,1200)"/>
@@ -3202,17 +3191,12 @@
     <wire from="(860,1200)" to="(870,1200)"/>
     <wire from="(880,1510)" to="(880,1540)"/>
     <wire from="(880,1510)" to="(890,1510)"/>
-    <wire from="(880,2380)" to="(890,2380)"/>
     <wire from="(890,1490)" to="(890,1510)"/>
-    <wire from="(890,2360)" to="(890,2370)"/>
     <wire from="(910,1510)" to="(910,1540)"/>
     <wire from="(910,1510)" to="(930,1510)"/>
     <wire from="(930,1490)" to="(930,1510)"/>
-    <wire from="(930,2370)" to="(940,2370)"/>
     <wire from="(940,1510)" to="(940,1540)"/>
     <wire from="(940,1510)" to="(970,1510)"/>
-    <wire from="(950,2330)" to="(950,2360)"/>
-    <wire from="(950,2360)" to="(1010,2360)"/>
     <wire from="(950,890)" to="(1060,890)"/>
     <wire from="(970,1490)" to="(970,1510)"/>
     <wire from="(970,1520)" to="(1010,1520)"/>

@@ -114,7 +114,7 @@
     <a name="appearance" val="logisim_evolution"/>
     <a name="circuit" val="MiMo_Pipelined_v2"/>
     <a name="circuitnamedboxfixedsize" val="true"/>
-    <a name="simulationFrequency" val="8000.0"/>
+    <a name="simulationFrequency" val="4000.0"/>
     <comp lib="0" loc="(100,110)" name="Clock"/>
     <comp lib="0" loc="(100,1280)" name="Tunnel">
       <a name="facing" val="east"/>

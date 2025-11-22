@@ -959,10 +959,10 @@
       <a name="label" val="Z"/>
     </comp>
     <comp lib="0" loc="(3830,930)" name="Tunnel">
-      <a name="label" val="V"/>
+      <a name="label" val="N"/>
     </comp>
     <comp lib="0" loc="(3830,970)" name="Tunnel">
-      <a name="label" val="N"/>
+      <a name="label" val="V"/>
     </comp>
     <comp lib="0" loc="(4070,660)" name="Tunnel">
       <a name="facing" val="east"/>
