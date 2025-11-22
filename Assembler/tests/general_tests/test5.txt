@@ -9,5 +9,5 @@ nop			@cycle 8
 nop			@cycle 9
 adds r3, r1, r2		@cycle 10
 nop			@cycle 11
-jne loop		@cycle 12, does not execute
+jeq loop		@cycle 12, does not execute
 sub r4, r1, r2		@cycle 13
