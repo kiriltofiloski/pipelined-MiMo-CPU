@@ -7,23 +7,18 @@ mov r0, #8
 
 loop: 
 mov r1, #8
-nop
-nop
-nop
 
 repeat:
 subs r1, r1, #1
-nop
-nop
-nop
 bne repeat
-nop
-nop
-nop
 subs r0, r0, #1
 b  loop
 
 /*
+using no prediction(branch not taken): 78/100 prediction are incorrect
 using 1-bit predictor: 23/100 predictions are incorrect 
 using 2-bit predictor: 13/100 predictions are incorrect
+using correlating LHT: 21/100 incorrect
+using correlating 2 by 2: 18/100 incorrect
+using tournament: 19/100 incorrect
 */
