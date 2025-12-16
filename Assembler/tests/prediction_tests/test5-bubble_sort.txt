@@ -66,6 +66,14 @@ correlating LHT: 37
 correlating 2 by 2: 24
 tournament: 35
 
+Number of cycles to complete sorting:
+no prediction: 605
+1-bit: 620
+2-bit: 600
+correlating LHT: 605
+correlating 2 by 2: 592
+tournament: 603
+
 for some reason tournament is worse here than correlating, not sure exactly why, but it's interesting
 */
 

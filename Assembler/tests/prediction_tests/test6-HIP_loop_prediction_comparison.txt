@@ -18,7 +18,7 @@ jne loop
 mov r7, #7
 
 /*
-using no prediction(branch not taken): 13/14 prediction are incorrect, test ends cycle 101
+using no prediction(branch not taken): 13/14 prediction are incorrect, test ends cycle 103
 using 1-bit predictor: 2/14 predictions are incorrect, test ends cycle 92
 using 2-bit predictor: 3/14 prediction are incorrect, test ends cycle 93
 using correlating LHT: 6/14 incorrect, test ends cycle 96
