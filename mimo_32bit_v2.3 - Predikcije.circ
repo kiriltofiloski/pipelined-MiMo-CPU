@@ -476,7 +476,7 @@
     </comp>
     <comp lib="0" loc="(1420,3730)" name="Tunnel">
       <a name="facing" val="north"/>
-      <a name="label" val="cond_met"/>
+      <a name="label" val="crnt_cond_met"/>
     </comp>
     <comp lib="0" loc="(1420,5760)" name="Tunnel">
       <a name="facing" val="east"/>
